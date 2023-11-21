@@ -32,12 +32,15 @@ public class Usuario {
 		
 		@Column
 	    private Date dataCadastro;
+		
+		@Column
+		private boolean admin;
 
 		public Usuario() {
 			
 		}
 		
-	    public Usuario(int id, String login, String senha, String nome, boolean ativo, Date dataNascimento, Date dataCadastro) {
+	    public Usuario(int id, String login, String senha, String nome, boolean ativo, Date dataNascimento, Date dataCadastro, boolean admin) {
 	        this.id = id;
 	        this.login = login;
 	        this.senha = senha;
@@ -45,10 +48,19 @@ public class Usuario {
 	        this.ativo = ativo;
 	        this.dataNascimento = dataNascimento;
 	        this.dataCadastro = dataCadastro;
+	        this.admin = admin;
 	    }
 
 	    
-	    public int getId() {
+	    public boolean isAdmin() {
+			return admin;
+		}
+
+		public void setAdmin(boolean admin) {
+			this.admin = admin;
+		}
+
+		public int getId() {
 	        return id;
 	    }
 
