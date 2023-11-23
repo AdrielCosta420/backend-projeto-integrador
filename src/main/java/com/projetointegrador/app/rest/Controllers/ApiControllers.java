@@ -1,6 +1,7 @@
 package com.projetointegrador.app.rest.Controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,10 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.projetointegrador.app.rest.Models.Auth;
-
 import com.projetointegrador.app.rest.Models.Carro;
+import com.projetointegrador.app.rest.Models.Pessoa;
 import com.projetointegrador.app.rest.Models.Usuario;
 import com.projetointegrador.app.rest.Repo.CarroRepository;
+import com.projetointegrador.app.rest.Repo.PessoaRepository;
 import com.projetointegrador.app.rest.Repo.UsuarioRepository;
 
 
@@ -29,7 +31,9 @@ public class ApiControllers {
 
 	@Autowired
 	private CarroRepository carroRepo;
-
+	
+	@Autowired
+	private PessoaRepository pessoaRepo;
 
 
 	@GetMapping(value = "/")
@@ -48,6 +52,7 @@ public class ApiControllers {
 		return "USUARIO SALVO";
 	}
 
+	
 	@PutMapping(value = "update/{id}")
 	public String updateUser(@PathVariable Integer id, @RequestBody Usuario usuario) {
 
@@ -67,14 +72,18 @@ public class ApiControllers {
 	}
 
 	@DeleteMapping(value = "/delete/{id}")
-	public String deleteUser(@PathVariable Integer id) {
-		Usuario deleteUser = usuarioRepo.findById(id).get();
+	public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
+	    Optional<Pessoa> optionalUser = pessoaRepo.findById(id);
 
-		usuarioRepo.delete(deleteUser);
-
-		return "USUARIO DELETADO ID:" + id;
-
+	    if (optionalUser.isPresent()) {
+	        Pessoa deletePessoa = optionalUser.get();
+	        pessoaRepo.delete(deletePessoa);
+	        return ResponseEntity.ok("USUARIO DELETADO ID:" + id);
+	    } else {
+	        return ResponseEntity.notFound().build();
+	    }
 	}
+
 
 	@GetMapping(value = "/carros")
 	public List<Carro> getCarros() {
@@ -82,20 +91,31 @@ public class ApiControllers {
 	}
 
 	@GetMapping(value = "/singleCarro/{id}")
-	public Carro getSingleCarro(@PathVariable long id) {
+	public Carro getSingleCarro(@PathVariable Integer id) {
 
 		Carro carro = carroRepo.findById(id).get();
 		return carro;
 	}
 
 	@PostMapping(value = "/saveCarro")
-	public String saveCarro(@RequestBody Carro carro) {
-		carroRepo.save(carro);
-		return "CARRO SALVO";
+	public ResponseEntity<Carro> saveCarro(@RequestBody Carro carro) {
+		
+		
+	Carro novoCarro = carroRepo.save(carro);
+	
+	Carro carroSalvo = carroRepo.findById(novoCarro.getId()).orElse(null);
+	
+	if(carroSalvo != null) {
+		return ResponseEntity.ok(carroSalvo);
+	} else {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		
 	}
+	}
+	
 
 	@PutMapping(value = "updateCarro/{id}")
-	public String updateCarro(@PathVariable long id, @RequestBody Carro carro) {
+	public String updateCarro(@PathVariable Integer id, @RequestBody Carro carro) {
 
 		Carro updateCarro = carroRepo.findById(id).get();
 
@@ -113,7 +133,7 @@ public class ApiControllers {
 	}
 
 	@DeleteMapping(value = "/deleteCarro/{id}")
-	public String deleteCarro(@PathVariable long id) {
+	public String deleteCarro(@PathVariable Integer id) {
 		Carro deleteCarro = carroRepo.findById(id).get();
 
 		carroRepo.delete(deleteCarro);
@@ -135,4 +155,48 @@ public class ApiControllers {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
-}
+	
+	@PostMapping(value = "/criarPessoa")
+	public ResponseEntity<Pessoa> criarPessoa(@RequestBody Pessoa pessoa) {
+	    Pessoa novaPessoa = pessoaRepo.save(pessoa);
+	    
+	    Pessoa pessoaSalva = pessoaRepo.findById(novaPessoa.getId()).orElse(null);
+
+	    if (pessoaSalva != null) {
+	        return ResponseEntity.ok(pessoaSalva);
+	    } else {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+	    }
+	}
+	
+	@GetMapping(value = "/pessoas")
+	public List<Pessoa> getAllPessoas() {
+		return pessoaRepo.findAll();
+	}
+	
+	@PutMapping(value = "/atualizarPessoa/{id}")
+	public ResponseEntity<Pessoa> atualizarPessoa(@PathVariable int id, @RequestBody Pessoa pessoaDados) {
+	    Optional<Pessoa> optionalPessoa = pessoaRepo.findById(id);
+
+	    if (optionalPessoa.isPresent()) {
+	        Pessoa pessoaExistente = optionalPessoa.get();
+
+
+	        pessoaExistente.setNome(pessoaDados.getNome());
+	        pessoaExistente.setEmail(pessoaDados.getEmail());
+	        pessoaExistente.setTelefone(pessoaDados.getTelefone());
+	        pessoaExistente.setDataNasc(pessoaDados.getDataNasc());
+	        pessoaExistente.setCpf(pessoaDados.getCpf());
+	        pessoaExistente.setSituacao(pessoaDados.getSituacao());
+	        pessoaExistente.setDataInclusao(pessoaDados.getDataInclusao());
+	        pessoaExistente.setPerfil(pessoaDados.getPerfil());
+
+	        Pessoa pessoaAtualizada = pessoaRepo.save(pessoaExistente);
+
+	        return ResponseEntity.ok(pessoaAtualizada);
+	    } else {
+	        return ResponseEntity.notFound().build();
+	    }
+	}
+
+	}
