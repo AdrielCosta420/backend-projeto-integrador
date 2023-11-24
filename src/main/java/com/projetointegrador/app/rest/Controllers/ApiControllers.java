@@ -1,6 +1,8 @@
 package com.projetointegrador.app.rest.Controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,17 +74,21 @@ public class ApiControllers {
 	}
 
 	@DeleteMapping(value = "/delete/{id}")
-	public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
+	public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable Integer id) {
 	    Optional<Pessoa> optionalUser = pessoaRepo.findById(id);
 
 	    if (optionalUser.isPresent()) {
 	        Pessoa deletePessoa = optionalUser.get();
 	        pessoaRepo.delete(deletePessoa);
-	        return ResponseEntity.ok("USUARIO DELETADO ID:" + id);
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("message", "USUARIO DELETADO ID: " + id);
+	        return ResponseEntity.ok(response);
 	    } else {
 	        return ResponseEntity.notFound().build();
 	    }
 	}
+
 
 
 	@GetMapping(value = "/carros")
@@ -115,32 +121,44 @@ public class ApiControllers {
 	
 
 	@PutMapping(value = "updateCarro/{id}")
-	public String updateCarro(@PathVariable Integer id, @RequestBody Carro carro) {
+	public ResponseEntity<Carro> updateCarro(@PathVariable Integer id, @RequestBody Carro carro) {
+	    Optional<Carro> optionalCarro = carroRepo.findById(id);
 
-		Carro updateCarro = carroRepo.findById(id).get();
+	    if (optionalCarro.isPresent()) {
+	        Carro updateCarro = optionalCarro.get();
+	        
+	        updateCarro.setMarca(carro.getMarca());
+	        updateCarro.setDescricao(carro.getDescricao());
+	        updateCarro.setModelo(carro.getModelo());
+	        updateCarro.setAnoFabricacao(carro.getAnoFabricacao());
+	        updateCarro.setAnoModelo(carro.getAnoModelo());
+	        updateCarro.setValor(carro.getValor());
 
-		updateCarro.setMarca(carro.getMarca());
-		updateCarro.setDescricao(carro.getDescricao());
-		updateCarro.setModelo(carro.getModelo());
-		updateCarro.setAnoFabricacao(carro.getAnoFabricacao());
-		updateCarro.setAnoModelo(carro.getAnoModelo());
-		updateCarro.setValor(carro.getValor());
+	        Carro carroAtualizado = carroRepo.save(updateCarro);
 
-		carroRepo.save(updateCarro);
-
-		return "CARRO ATUALIZADO";
-
+	        return ResponseEntity.ok(carroAtualizado);
+	    } else {
+	        return ResponseEntity.notFound().build();
+	    }
 	}
+
 
 	@DeleteMapping(value = "/deleteCarro/{id}")
-	public String deleteCarro(@PathVariable Integer id) {
-		Carro deleteCarro = carroRepo.findById(id).get();
+	public ResponseEntity<Map<String, Object>> deleteCarro(@PathVariable Integer id) {
+	    Optional<Carro> optionalCarro = carroRepo.findById(id);
 
-		carroRepo.delete(deleteCarro);
-
-		return "CARRO DELETADO ID:" + id;
-
+	    if (optionalCarro.isPresent()) {
+	        Carro deleteCarro = optionalCarro.get();
+	        carroRepo.delete(deleteCarro);
+	        
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("message", "CARRO DELETADO ID: " + id);
+	        return ResponseEntity.ok(response);
+	    } else {
+	        return ResponseEntity.notFound().build();
+	    }
 	}
+
 
 	@PostMapping(value = "/login")
 	public ResponseEntity<Usuario> login(@RequestBody Auth auth) {
