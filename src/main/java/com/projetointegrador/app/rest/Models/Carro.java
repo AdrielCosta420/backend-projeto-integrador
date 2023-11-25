@@ -32,10 +32,21 @@ public class Carro {
 	@Column
 	private String descricao;
 	
+	@Column
+	private Boolean carroInteresse;
+	
+	public Boolean getCarroInteresse() {
+		return carroInteresse;
+	}
+
+	public void setCarroInteresse(Boolean carroInteresse) {
+		this.carroInteresse = carroInteresse;
+	}
+
 	public Carro () {}
 
 	public Carro(int id, String marca, String modelo, Date anoFabricacao, Date anoModelo, double valor,
-			String descricao) {
+			String descricao, Boolean carroInteresse) {
 		super();
 		this.id = id;
 		this.marca = marca;
@@ -44,6 +55,7 @@ public class Carro {
 		this.anoModelo = anoModelo;
 		this.valor = valor;
 		this.descricao = descricao;
+		this.carroInteresse = carroInteresse;
 	}
 
 	public int getId() {

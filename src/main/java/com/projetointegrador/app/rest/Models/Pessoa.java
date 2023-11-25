@@ -111,17 +111,70 @@ public class Pessoa {
 	@Column
 	private String cpf;
 	
+	@Column
+	private String login;
+	
+	@Column
+	private String senha;
+	
+	@Column
+	private Boolean ativo;
+	
+	@Column
+	private Boolean admin;
+	
+	public Pessoa(int id, String nome, String email, String telefone, Date dataNasc, Date dataInclusao, String situacao,
+			String perfil, String cpf, String login, String senha, boolean ativo, boolean admin) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.email = email;
+		this.telefone = telefone;
+		this.dataNasc = dataNasc;
+		this.dataInclusao = dataInclusao;
+		this.situacao = situacao;
+		this.perfil = perfil;
+		this.cpf = cpf;
+		this.login = login;
+		this.senha = senha;
+		this.ativo = ativo;
+		this.admin = admin;
+	}
+
+	public String getLogin() {
+		return login;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getSenha() {
+		return senha;
+	}
+
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
+	}
+
+	public boolean isAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}
+
+	
+	
 	public Pessoa() {}
 	
-	 public Pessoa(int id, String nome, String email, String telefone, Date dataNasc, Date dataInclusao, String situacao, String perfil, String cpf) {
-	        this.id = id;
-	        this.nome = nome;
-	        this.email = email;
-	        this.telefone = telefone;
-	        this.dataNasc = dataNasc;
-	        this.dataInclusao = dataInclusao;
-	        this.situacao = situacao;
-	        this.perfil = perfil;  
-	        this.cpf = cpf;
-	    }
 }

@@ -1,11 +1,13 @@
 package com.projetointegrador.app.rest.Controllers;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,15 +16,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.projetointegrador.app.rest.Models.Auth;
 import com.projetointegrador.app.rest.Models.Carro;
 import com.projetointegrador.app.rest.Models.Pessoa;
+import com.projetointegrador.app.rest.Models.RecuperarSenha;
 import com.projetointegrador.app.rest.Models.Usuario;
 import com.projetointegrador.app.rest.Repo.CarroRepository;
 import com.projetointegrador.app.rest.Repo.PessoaRepository;
 import com.projetointegrador.app.rest.Repo.UsuarioRepository;
+import com.projetointegrador.app.rest.Services.RecuperarSenhaService;
 
 
 @RestController
@@ -36,6 +41,9 @@ public class ApiControllers {
 	
 	@Autowired
 	private PessoaRepository pessoaRepo;
+	
+	@Autowired
+	private RecuperarSenhaService recuperarSenhaService;
 
 
 	@GetMapping(value = "/")
@@ -133,6 +141,7 @@ public class ApiControllers {
 	        updateCarro.setAnoFabricacao(carro.getAnoFabricacao());
 	        updateCarro.setAnoModelo(carro.getAnoModelo());
 	        updateCarro.setValor(carro.getValor());
+	        updateCarro.setCarroInteresse(carro.getCarroInteresse());
 
 	        Carro carroAtualizado = carroRepo.save(updateCarro);
 
@@ -161,14 +170,14 @@ public class ApiControllers {
 
 
 	@PostMapping(value = "/login")
-	public ResponseEntity<Usuario> login(@RequestBody Auth auth) {
+	public ResponseEntity<Pessoa> login(@RequestBody Auth auth) {
 		String email = auth.getEmail();
 		String senha = auth.getSenha();
 
-		Usuario usuario = usuarioRepo.findByLoginAndSenha(email, senha);
+		Pessoa pessoa = pessoaRepo.findByLoginAndSenha(email, senha);
 
-		if (usuario != null) {
-			return ResponseEntity.ok(usuario);
+		if (pessoa != null) {
+			return ResponseEntity.ok(pessoa);
 		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
@@ -208,6 +217,10 @@ public class ApiControllers {
 	        pessoaExistente.setSituacao(pessoaDados.getSituacao());
 	        pessoaExistente.setDataInclusao(pessoaDados.getDataInclusao());
 	        pessoaExistente.setPerfil(pessoaDados.getPerfil());
+	        pessoaExistente.setLogin(pessoaDados.getLogin());
+	        pessoaExistente.setSenha(pessoaDados.getSenha());
+	        pessoaExistente.setAtivo(pessoaDados.isAtivo());
+	        pessoaExistente.setAdmin(pessoaDados.isAdmin());
 
 	        Pessoa pessoaAtualizada = pessoaRepo.save(pessoaExistente);
 
@@ -216,5 +229,18 @@ public class ApiControllers {
 	        return ResponseEntity.notFound().build();
 	    }
 	}
+	
+	
+	@GetMapping(value = "/recuperarSenha")
+	public ResponseEntity<String> recuperarSenha(@RequestParam String login, @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataNasc) {
+	    String senha = recuperarSenhaService.recuperarSenha(login, dataNasc);
 
+	    if (senha != null) {
+	        return ResponseEntity.ok("A senha é: " + senha);
+	    } else {
+	        return ResponseEntity.notFound().build();
+	    }
 	}
+
+}
+
